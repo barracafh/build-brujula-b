@@ -1,0 +1,23 @@
+{
+  "nombre": "Brújula · Asistente de trámites",
+  "frase": "Encuentra el trámite y el siguiente paso.",
+  "icono": ">",
+  "herramienta": "brujula",
+  "equipo": "brujula-b",
+  "url": "https://build.barraca.house/brujula-b",
+  "fuentes": [
+    {
+      "nombre": "www.gva.es",
+      "url": "https://www.gva.es/"
+    },
+    {
+      "nombre": "sede.valencia.es",
+      "url": "https://sede.valencia.es/"
+    },
+    {
+      "nombre": "administracion.gob.es",
+      "url": "https://administracion.gob.es/tramites-electronicos/resultados-actuaciones"
+    }
+  ],
+  "datos": "simulados"
+}
