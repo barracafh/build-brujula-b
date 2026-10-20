@@ -39,7 +39,8 @@ El reto se puede abordar por partes. Haced las que os dé tiempo. Empezad por «
 
 - No hay que inventar pasos, plazos ni enlaces: si no están en una fuente, no se dan.
 - Si el trámite no está en el catálogo, hay que decirlo y remitir al buscador del PAG.
-- Las 21 entradas están comprobadas en la sede, el BOE o el DOGV a 18/10/2026. Si se añaden entradas sin comprobar, van con `"verificado": false`.
+- Las 21 entradas están comprobadas en la sede, el BOE o el DOGV a 18/10/2026, salvo la renta valenciana de inclusión, que va con `"verificado": false`. Si se añaden entradas sin comprobar, también van con `"verificado": false`.
+- La renta valenciana de inclusión (`renta-valenciana-inclusion`) cambia de ley el 20/10/2026 (la Ley 2/2026 sustituye a la Ley 19/2017) y su procedimiento nuevo no estaba publicado al preparar este material: la entrada va con `"verificado": false` y sin `enlace_tramite`. Si lo necesitáis, buscadlo en sede.gva.es y citadlo como fuente; si no aparece, la herramienta lo dice y remite a los servicios sociales o al 012.
 - Plazo del paro: el BOE confirma 15 días; la nota de la entrada explica la duda sobre si son hábiles.
 
 ## Resumen para el agente
