@@ -1,0 +1,45 @@
+.aguja {
+  transform-box: view-box;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .presentacion {
+    animation: aparecer 700ms var(--ease-brand) both;
+  }
+
+  .aguja {
+    animation: orientar 1800ms var(--ease-brand);
+    transition: transform 600ms var(--ease-brand);
+  }
+
+  .rosa:hover .aguja {
+    transform: rotate(16deg);
+  }
+}
+
+@keyframes orientar {
+  0% {
+    transform: rotate(-150deg);
+  }
+  60% {
+    transform: rotate(18deg);
+  }
+  82% {
+    transform: rotate(-7deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
