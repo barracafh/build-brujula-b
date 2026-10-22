@@ -8,6 +8,7 @@
 
 - Todo lo que se muestra sale del catálogo de 21 entradas de `datos/` (13 trámites y 8 ayudas), comprobado en sede, BOE o DOGV. El modelo de IA no redacta nada: solo elige qué entrada corresponde a la frase, y lo que elige se valida contra el catálogo. El modelo decide en cada petición; si no contesta (error, tiempo agotado, cuota), responde un buscador por palabras sobre el mismo catálogo y la interfaz avisa de que no está segura.
 - Las entradas con `verificado: false` (la Renta Valenciana de Inclusión, cuya ley cambió el 20/10/2026) salen con un aviso visible, sin botón a la sede y remitiendo a los servicios sociales o al 012.
+- Fuera de catálogo, el modelo propone una consulta de 2–4 palabras (no la frase de la persona) y la herramienta la lanza al buscador oficial del PAG (administracion.gob.es), enseñando las fichas que devuelve tal cual, con su código SIA y su enlace oficial. No hay API: se pide el mismo fragmento HTML que usa la web del PAG. Si no responde, queda el enlace genérico al buscador.
 - No se guarda ni se registra lo que escribe la persona: la frase viaja en un POST y no se escribe en ningún log ni base de datos.
 - `scripts/probar.ts` pasa una hoja de 19 escenarios (castellano, valenciano, paráfrasis, fuera de catálogo, validación, intentos de inyección) contra la API; `scripts/ia-local.ts` es un suplente local del modelo para probar sin gastar cuota.
 

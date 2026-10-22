@@ -187,7 +187,7 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
           </p>
         )}
         {estado === "listo" && resultado?.fueraCatalogo && (
-          <FueraCatalogo tituloRef={titulo} />
+          <FueraCatalogo pag={resultado.pag} tituloRef={titulo} />
         )}
         {estado === "listo" && entrada && (
           <Respuesta
