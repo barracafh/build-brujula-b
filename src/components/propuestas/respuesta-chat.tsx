@@ -12,6 +12,7 @@ import { fuentesDe, PAG, relacionadas } from "@/lib/catalogo";
 import { textosPara, type Textos } from "@/lib/idioma";
 import { cn } from "@/lib/utils";
 import type { Chat, Enfoque, TurnoChat } from "./use-chat";
+import { RespuestaPAGChat } from "./respuesta-pag-chat";
 
 export function RespuestaChat({ turno, chat, destacar = false }: { turno: TurnoChat; chat: Chat; destacar?: boolean }) {
   const t = textosPara(turno.resultado?.idioma ?? turno.idioma, turno.resultado?.textos);
@@ -28,8 +29,13 @@ export function RespuestaChat({ turno, chat, destacar = false }: { turno: TurnoC
   );
 
   const entrada = turno.resultado?.entradas[0];
+  // Fuera de catálogo: si el buscador oficial del PAG tiene fichas, la primera es la respuesta.
+  const pag = turno.resultado?.pag;
+  if ((!entrada || turno.resultado?.fueraCatalogo) && pag && pag.resultados.length > 0) return (
+    <RespuestaPAGChat turno={turno} pag={pag} destacar={destacar} />
+  );
   if (!entrada || turno.resultado?.fueraCatalogo) return (
-    <article className="space-y-6 text-base"><p>{t.noConfirmado}</p><div className="flex flex-wrap items-center gap-3"><a href={PAG.url} className={buttonVariants({ variant: "outline", size: "lg" })}>{t.buscador}<ArrowUpRight aria-hidden="true" /></a><FuentesPopover fuentes={[PAG]} textos={t} /></div></article>
+    <article className="space-y-6 text-base"><p>{t.noConfirmado}</p><div className="flex flex-wrap items-center gap-3"><a href={pag?.url ?? PAG.url} className={buttonVariants({ variant: "outline", size: "lg" })}>{t.buscador}<ArrowUpRight aria-hidden="true" /></a><FuentesPopover fuentes={[PAG]} textos={t} /></div></article>
   );
 
   const enfoque = turno.enfoque ?? "resumen";

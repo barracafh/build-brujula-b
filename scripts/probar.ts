@@ -34,8 +34,15 @@ for (const e of escenarios) {
     entradas?: { id: string; relacionados: string[] }[];
     fueraCatalogo?: boolean;
     origen?: string;
+    pag?: { consulta: string; resultados: { codigoSia: string; titulo: string }[] };
   };
   const ids = (datos.entradas ?? []).map((x) => x.id);
+  // Fuera de catálogo: qué consulta propuso el modelo y cuántas fichas devolvió el PAG.
+  const pag = datos.pag
+    ? `  · PAG «${datos.pag.consulta}»: ${datos.pag.resultados.length} fichas (${datos.pag.resultados[0]?.titulo.slice(0, 50) ?? ""}…)`
+    : datos.fueraCatalogo
+      ? "  · PAG: sin resultados"
+      : "";
   const esperaba = e.estado
     ? `HTTP ${e.estado}`
     : e.espera?.length
@@ -60,7 +67,7 @@ for (const e of escenarios) {
   const origen = e.estado ? `http ${res.status}` : (datos.origen ?? `http ${res.status}`);
   const aviso = origen === "respaldo" ? "  ⚠ respondió el buscador, no el modelo" : "";
   console.log(
-    `${ok ? "OK   " : "FALLO"} #${String(e.n).padEnd(3)} ${origen.padEnd(8)} ${JSON.stringify(e.texto)} → ${ids.join(", ") || (e.estado ? "" : "fuera de catálogo")}${ok ? "" : `   (esperaba ${esperaba})`}${aviso}`,
+    `${ok ? "OK   " : "FALLO"} #${String(e.n).padEnd(3)} ${origen.padEnd(8)} ${JSON.stringify(e.texto)} → ${ids.join(", ") || (e.estado ? "" : "fuera de catálogo")}${ok ? "" : `   (esperaba ${esperaba})`}${aviso}${pag}`,
   );
 }
 

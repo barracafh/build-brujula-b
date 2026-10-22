@@ -2,6 +2,7 @@ import catalogo from "../../datos/catalogo-tramites-ayudas.json";
 import type { Source } from "@/components/Fuentes";
 import type { Textos } from "./idioma";
 import type { AclaracionAmbito } from "./ambito";
+import type { ResultadoPAG } from "./pag";
 
 // El catálogo de la organización es la única fuente de lo que se muestra:
 // pasos, plazos, documentación y enlaces salen de aquí, nunca del modelo.
@@ -36,6 +37,12 @@ export type Resultado = {
   aclaracion?: AclaracionAmbito;
   relacionadas?: Entrada[];
   traduccionDisponible?: boolean;
+  // Solo fuera de catálogo: lo que encuentra el buscador oficial del PAG.
+  pag?: {
+    consulta: string;
+    url: string;
+    resultados: ResultadoPAG[];
+  };
 };
 
 export const entradas = catalogo.items as unknown as Entrada[];
@@ -83,6 +90,14 @@ const NOMBRES: Record<string, string> = {
   "clave.gob.es": "Cl@ve",
   "www.sede.fnmt.gob.es": "Sede de la FNMT",
   "administracion.gob.es": "Punto de Acceso General",
+  "www.mjusticia.gob.es": "Ministerio de Justicia",
+  "sede.mjusticia.gob.es": "Sede electrónica del Ministerio de Justicia",
+  "sede.administracionespublicas.gob.es": "Sede electrónica de Administraciones Públicas",
+  "www.mites.gob.es": "Ministerio de Trabajo",
+  "www.inclusion.gob.es": "Ministerio de Inclusión y Seguridad Social",
+  "sede.mir.gob.es": "Sede electrónica del Ministerio del Interior",
+  "www.interior.gob.es": "Ministerio del Interior",
+  "www.exteriores.gob.es": "Ministerio de Asuntos Exteriores",
   "www.mivau.gob.es": "Ministerio de Vivienda",
   "ceice.gva.es": "Conselleria de Educación",
   "portal.edu.gva.es": "Conselleria de Educación",

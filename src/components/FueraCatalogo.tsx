@@ -5,13 +5,16 @@ import { Card } from "@/components/ui/card";
 import { Fuentes } from "@/components/Fuentes";
 import { PAG, entradas } from "@/lib/catalogo";
 
-// Cuando la frase no encaja con el catálogo lo decimos y remitimos al buscador
-// oficial, en vez de forzar un parecido.
+// Ni el catálogo ni el buscador oficial tienen respuesta: lo decimos y
+// remitimos al PAG, con la consulta del modelo si la hay.
 export function FueraCatalogo({
+  urlBusqueda,
   tituloRef,
 }: {
+  urlBusqueda?: string;
   tituloRef?: Ref<HTMLHeadingElement>;
 }) {
+  const destino = urlBusqueda ?? PAG.url;
   return (
     <article
       aria-labelledby="respuesta-titulo"
@@ -27,13 +30,13 @@ export function FueraCatalogo({
           tabIndex={-1}
           className="mt-3 font-sans text-[clamp(30px,5vw,44px)] leading-[1.08] tracking-[-0.03em] outline-none"
         >
-          No encontramos este trámite en nuestro catálogo
+          No encontramos este trámite
         </h2>
         <p className="mt-3 text-[15px] text-(--text-secondary)">
           Cubrimos {entradas.length} trámites y ayudas habituales para quien
-          vive en València. Si lo tuyo es otra cosa, el buscador oficial del
-          Estado reúne todos los procedimientos con su enlace a la sede. También
-          puedes probar a contarlo con otras palabras.
+          vive en València, y hemos mirado también en el buscador oficial del
+          Estado. Prueba a contarlo con otras palabras, o busca directamente en
+          el PAG, que reúne todos los procedimientos con su enlace a la sede.
         </p>
       </div>
 
@@ -51,7 +54,7 @@ export function FueraCatalogo({
           </p>
         </div>
         <a
-          href={PAG.url}
+          href={destino}
           className={cn(
             buttonVariants({ variant: "sunset", size: "lg" }),
             "max-md:w-full",

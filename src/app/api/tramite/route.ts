@@ -1,6 +1,7 @@
 import { buscar } from "@/lib/buscar";
 import { clasificar } from "@/lib/clasificar";
 import { porId, type Entrada, type Resultado } from "@/lib/catalogo";
+import { buscarPAG, urlBusquedaPAG } from "@/lib/pag";
 
 // POST {"texto": "me han echado del trabajo"} → Resultado.
 // Lo que escribe el ciudadano no se guarda ni se registra en ningún sitio; por
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
 
   const ia = await clasificar(texto);
   if (ia) {
-    ids = ia;
+    ids = ia.ids;
     origen = "ia";
   } else {
     const frases = buscar(texto);
@@ -38,6 +39,17 @@ export async function POST(req: Request) {
     confianza,
     origen,
   };
+
+  // Fuera de catálogo: enseñamos lo que encuentra el buscador oficial con la
+  // consulta que propone el modelo (palabras clave, no la frase de la persona).
+  // Al PAG solo viaja esa consulta. Si el PAG no responde, queda el enlace genérico.
+  if (resultado.fueraCatalogo && ia?.busqueda)
+    resultado.pag = {
+      consulta: ia.busqueda,
+      url: urlBusquedaPAG(ia.busqueda),
+      resultados: await buscarPAG(ia.busqueda, ia.ambito),
+    };
+
   return Response.json(resultado, {
     headers: { "cache-control": "no-store" },
   });
