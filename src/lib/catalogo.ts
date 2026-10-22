@@ -1,5 +1,7 @@
 import catalogo from "../../datos/catalogo-tramites-ayudas.json";
 import type { Source } from "@/components/Fuentes";
+import type { Textos } from "./idioma";
+import type { AclaracionAmbito } from "./ambito";
 
 // El catálogo de la organización es la única fuente de lo que se muestra:
 // pasos, plazos, documentación y enlaces salen de aquí, nunca del modelo.
@@ -29,6 +31,11 @@ export type Resultado = {
   // "baja" cuando solo hay una coincidencia débil de palabras y el modelo no pudo confirmarla.
   confianza: "alta" | "baja";
   origen: "frases" | "ia" | "respaldo";
+  idioma?: string;
+  textos?: Textos;
+  aclaracion?: AclaracionAmbito;
+  relacionadas?: Entrada[];
+  traduccionDisponible?: boolean;
 };
 
 export const entradas = catalogo.items as unknown as Entrada[];
