@@ -155,9 +155,10 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
           >
             {estado === "cargando" ? "Buscando…" : "Buscar el trámite"}
           </Button>
+          <Conversacion consultar={enviar} />
           <p id="ayuda-texto" className="text-sm text-(--text-secondary)">
-            Con tus palabras, en castellano o en valenciano. No guardamos lo que
-            escribes.
+            Con tus palabras, escritas o habladas, en castellano o en
+            valenciano. No guardamos nada de lo que envías.
           </p>
         </div>
         <p
@@ -169,8 +170,6 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
           {aviso}
         </p>
       </form>
-
-      <Conversacion consultar={enviar} />
 
       {estado === "inicio" && ejemplos.length > 0 && (
         <div className="mt-4">

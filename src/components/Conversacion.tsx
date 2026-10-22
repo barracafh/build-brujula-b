@@ -7,7 +7,6 @@ import { ruta } from "@/config/sitio";
 import { resumenVoz } from "@/lib/resumen";
 import type { Resultado } from "@/lib/catalogo";
 
-type Turno = { frase: string; audio?: string };
 type Estado =
   | "aparado"
   | "escuchando"
@@ -15,10 +14,10 @@ type Estado =
   | "consultando"
   | "hablando";
 
-// Conversación por voz: pulsa el micrófono, habla, y Brújula contesta en voz
-// alta con ElevenLabs. Nada se guarda: las frases viven en memoria hasta que
-// se recarga la página. El historial solo viaja con cada consulta para que el
-// modelo entienda preguntas de seguimiento («¿y después?»).
+// El botón de hablar, junto a la caja de texto: hablas, la frase queda escrita
+// en el buscador, el resultado se pinta en pantalla y la voz lo lee. Nada se
+// guarda: las frases viven en memoria hasta recargar. El historial solo viaja
+// con cada consulta para que el modelo entienda seguimientos («¿y después?»).
 export function Conversacion({
   consultar,
 }: {
@@ -26,7 +25,6 @@ export function Conversacion({
 }) {
   const [estado, setEstado] = useState<Estado>("aparado");
   const [aviso, setAviso] = useState<string | null>(null);
-  const [turnos, setTurnos] = useState<Turno[]>([]);
   const frases = useRef<string[]>([]);
   const grabadora = useRef<MediaRecorder | null>(null);
   const reproducidor = useRef<HTMLAudioElement | null>(null);
@@ -49,7 +47,7 @@ export function Conversacion({
     setEstado("aparado");
   }, []);
 
-  // La conversación entera: escuchar → entender → consultar → hablar.
+  // La conversación entera: escuchar → entender → consultar y pintar → hablar.
   const conversar = useCallback(
     async (audio: File) => {
       setEstado("entendiendo");
@@ -75,11 +73,9 @@ export function Conversacion({
           return;
         }
         frases.current = [...frases.current.slice(-4), frase];
-        setTurnos((t) => [...t, { frase }]);
 
-        // 2. Pensar y pintar: el mismo envío que el buscador escrito — escribe
-        // la frase en la caja y muestra el resultado completo en pantalla — y
-        // devuelve el resultado para leerlo en voz alta.
+        // 2. El mismo envío que el buscador escrito: deja la frase en la caja
+        // y pinta el resultado completo. Devuelve lo que hay que leer.
         setEstado("consultando");
         const resultado = await consultar(frase, frases.current.slice(0, -1));
 
@@ -95,11 +91,7 @@ export function Conversacion({
           }),
         });
         if (!resVoz.ok) throw new Error(`HTTP ${resVoz.status}`);
-        const url = URL.createObjectURL(await resVoz.blob());
-        setTurnos((t) =>
-          t.map((u, i) => (i === t.length - 1 ? { ...u, audio: url } : u)),
-        );
-        const respuesta = new Audio(url);
+        const respuesta = new Audio(URL.createObjectURL(await resVoz.blob()));
         reproducidor.current = respuesta;
         respuesta.onended = () => {
           if (activo.current) setEstado("aparado");
@@ -107,9 +99,7 @@ export function Conversacion({
         await respuesta.play();
       } catch {
         setEstado("aparado");
-        setAviso(
-          "La conversación por voz ha fallado. Prueba de nuevo o escribe tu consulta.",
-        );
+        setAviso("La conversación por voz ha fallado. Prueba de nuevo o escribe tu consulta.");
       }
     },
     [consultar],
@@ -162,84 +152,44 @@ export function Conversacion({
   }, [conversar, pararVoz]);
 
   const leyenda: Record<Estado, string> = {
-    aparado: "Pulsa y habla",
+    aparado: "Hablar",
     escuchando: "Escuchando… pulsa para terminar",
-    entendiendo: "Entendiendo lo que has dicho…",
-    consultando: "Buscando el trámite…",
-    hablando: "Respondiendo… pulsa para cortar",
+    entendiendo: "Entendiendo…",
+    consultando: "Buscando…",
+    hablando: "Cortar la voz",
   };
   const ocupado = estado === "entendiendo" || estado === "consultando";
 
   return (
-    <section aria-label="Conversación por voz" className="mt-10">
-      <p className="font-mono text-xs tracking-[0.06em] text-(--text-secondary) uppercase">
-        O háblame
-      </p>
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        <Button
-          type="button"
-          variant={estado === "aparado" ? "outline" : "secondary"}
-          size="lg"
-          onClick={() => {
-            if (estado === "hablando") pararVoz();
-            else if (estado === "aparado") void escuchar();
-            else if (!ocupado) grabadora.current?.stop();
-          }}
-          disabled={ocupado}
-          aria-pressed={estado !== "aparado"}
-        >
-          <Mic
-            aria-hidden="true"
-            className={
-              estado === "escuchando"
-                ? "text-brand [animation:pulso_1.2s_ease-in-out_infinite] motion-reduce:animate-none"
-                : ""
-            }
-          />
-          {leyenda[estado]}
-        </Button>
-        <p className="text-sm text-(--text-secondary)">
-          Castellano o valenciano. No guardamos tu voz ni tus frases.
-        </p>
-      </div>
+    <div className="flex flex-wrap items-center gap-3">
+      <Button
+        type="button"
+        variant={estado === "aparado" ? "outline" : "secondary"}
+        onClick={() => {
+          if (estado === "hablando") pararVoz();
+          else if (estado === "aparado") void escuchar();
+          else if (!ocupado) grabadora.current?.stop();
+        }}
+        disabled={ocupado}
+        aria-pressed={estado !== "aparado"}
+      >
+        <Mic
+          aria-hidden="true"
+          className={
+            estado === "escuchando"
+              ? "text-brand [animation:pulso_1.2s_ease-in-out_infinite] motion-reduce:animate-none"
+              : ""
+          }
+        />
+        {leyenda[estado]}
+      </Button>
       <p
         role="status"
         aria-live="polite"
-        className="mt-2 min-h-5 text-sm text-destructive"
+        className="min-h-5 text-sm text-destructive"
       >
         {aviso}
       </p>
-      {turnos.length > 0 && (
-        <ol className="mt-4 grid gap-3 text-base">
-          {turnos.map((turno, i) => (
-            <li key={i} className="rounded-xl bg-muted px-4 py-3">
-              <p>
-                <span className="font-mono text-xs text-(--text-secondary) uppercase">
-                  Has dicho
-                </span>{" "}
-                {turno.frase}
-              </p>
-              {turno.audio && estado === "aparado" && (
-                <Button
-                  type="button"
-                  variant="link"
-                  size="sm"
-                  className="mt-1 -ml-2 h-auto px-2"
-                  onClick={() => {
-                    reproducidor.current?.pause();
-                    const repite = new Audio(turno.audio);
-                    reproducidor.current = repite;
-                    repite.onended = () => setEstado("aparado");
-                    void repite.play();
-                  }}
-                >
-                  Volver a escuchar la respuesta
-                </Button>
-              )}
-            </li>
-          ))}
-        </ol>
-      )}
-    </section>
+    </div>
   );
 }
