@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ruta } from "@/config/sitio";
 import { resumenVoz } from "@/lib/resumen";
@@ -181,12 +182,12 @@ export function Conversacion({
           disabled={ocupado}
           aria-pressed={estado !== "aparado"}
         >
-          <span
+          <Mic
             aria-hidden="true"
             className={
               estado === "escuchando"
-                ? "size-2 rounded-full bg-brand [animation:pulso_1.2s_ease-in-out_infinite] motion-reduce:animate-none"
-                : "size-2 rounded-full bg-(--text-secondary)"
+                ? "text-brand [animation:pulso_1.2s_ease-in-out_infinite] motion-reduce:animate-none"
+                : ""
             }
           />
           {leyenda[estado]}
