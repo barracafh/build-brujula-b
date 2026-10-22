@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ruta } from "@/config/sitio";
 import { PAG, porId, type Resultado } from "@/lib/catalogo";
+import { Conversacion } from "./Conversacion";
 import { FueraCatalogo } from "./FueraCatalogo";
 import { Respuesta } from "./Respuesta";
 import { RespuestaPAG } from "./RespuestaPAG";
@@ -43,6 +44,38 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
     if (estado === "listo") titulo.current?.focus();
   }, [estado, actual, actualPag]);
 
+  // La consulta al servidor, compartida por el buscador escrito y la voz. Lo
+  // que se escribe o habla viaja una sola vez (POST) y no se guarda en ningún
+  // sitio; el resto de la navegación se resuelve con el catálogo en el navegador.
+  async function consultar(
+    frase: string,
+    historial: string[] = [],
+  ): Promise<Resultado> {
+    const limpia = frase.trim();
+    if (!limpia) throw new Error("Cuéntanos qué te pasa en una frase.");
+    if (limpia.length > MAXIMO)
+      throw new Error(`Escribe como máximo ${MAXIMO} caracteres.`);
+    pendiente.current?.abort();
+    const control = new AbortController();
+    pendiente.current = control;
+    try {
+      const res = await fetch(ruta("/api/tramite"), {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ texto: limpia, historial: historial.slice(-4) }),
+        signal: control.signal,
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return (await res.json()) as Resultado;
+    } finally {
+      // Solo la petición vigente apaga la barra; una abortada ya no manda.
+      if (pendiente.current === control) {
+        if (avisoLento.current) clearTimeout(avisoLento.current);
+        setLento(false);
+      }
+    }
+  }
+
   async function enviar(frase: string) {
     const limpia = frase.trim();
     if (!limpia) return setAviso("Cuéntanos qué te pasa en una frase.");
@@ -53,18 +86,8 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
     setLento(false);
     if (avisoLento.current) clearTimeout(avisoLento.current);
     avisoLento.current = setTimeout(() => setLento(true), 1500);
-    pendiente.current?.abort();
-    const control = new AbortController();
-    pendiente.current = control;
     try {
-      const res = await fetch(ruta("/api/tramite"), {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ texto: limpia }),
-        signal: control.signal,
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const datos = (await res.json()) as Resultado;
+      const datos = await consultar(frase);
       setResultado(datos);
       setActual(datos.entradas[0]?.id ?? null);
       setActualPag(datos.pag?.resultados[0]?.codigoSia ?? null);
@@ -72,12 +95,6 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
     } catch (e) {
       if ((e as Error).name === "AbortError") return;
       setEstado("error");
-    } finally {
-      // Solo la petición vigente apaga la barra; una abortada ya no manda.
-      if (pendiente.current === control) {
-        if (avisoLento.current) clearTimeout(avisoLento.current);
-        setLento(false);
-      }
     }
   }
 
@@ -140,6 +157,8 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
           {aviso}
         </p>
       </form>
+
+      <Conversacion consultar={consultar} />
 
       {estado === "inicio" && ejemplos.length > 0 && (
         <div className="mt-4">

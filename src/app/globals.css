@@ -51,3 +51,14 @@
     translate: 300% 0;
   }
 }
+
+/* Punto que late mientras Brújula escucha al ciudadano. */
+@keyframes pulso {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
