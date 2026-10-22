@@ -1,4 +1,21 @@
-# Tu herramienta, lista para empezar
+# Brújula · Asistente de trámites (squad brujula-b)
+
+**El problema.** La gente cuenta lo que le pasa («me han echado del trabajo», «no puedo pagar la luz») y la Administración responde en organigramas: hay que saber ya que eso es «prestación contributiva por desempleo» del SEPE, o «bono social eléctrico» de una comercializadora de referencia, para encontrar la ficha y la sede. Entre medias se pierden plazos (el paro, 15 días hábiles) y ayudas que encadenan unas con otras.
+
+**Para quién.** Cualquier persona que vive en València y tiene que hacer un trámite sin saber cómo se llama, en castellano o en valenciano. Pensado para móvil y para quien no tiene identificación electrónica todavía.
+
+**Qué hemos hecho.** Una página: escribes tu situación con tus palabras y la herramienta identifica el trámite o la ayuda, y enseña los pasos en orden, la documentación, el plazo, dónde se hace (enlace a la sede) y las fuentes oficiales. Debajo, «Y después, ¿qué?» encadena lo que suele venir a continuación (del despido a Labora, al paro, al subsidio, al IMV). Si la situación no está en el catálogo lo dice y enlaza el buscador del PAG.
+
+- Todo lo que se muestra sale del catálogo de 21 entradas de `datos/` (13 trámites y 8 ayudas), comprobado en sede, BOE o DOGV. El modelo de IA no redacta nada: solo elige qué entrada corresponde a la frase, y lo que elige se valida contra el catálogo. El modelo decide en cada petición; si no contesta (error, tiempo agotado, cuota), responde un buscador por palabras sobre el mismo catálogo y la interfaz avisa de que no está segura.
+- Las entradas con `verificado: false` (la Renta Valenciana de Inclusión, cuya ley cambió el 20/10/2026) salen con un aviso visible, sin botón a la sede y remitiendo a los servicios sociales o al 012.
+- No se guarda ni se registra lo que escribe la persona: la frase viaja en un POST y no se escribe en ningún log ni base de datos.
+- `scripts/probar.ts` pasa una hoja de 19 escenarios (castellano, valenciano, paráfrasis, fuera de catálogo, validación, intentos de inyección) contra la API; `scripts/ia-local.ts` es un suplente local del modelo para probar sin gastar cuota.
+
+**Qué falta para producción.** Ampliar el catálogo más allá de las 21 entradas y de València (hoy, fuera de eso, se remite al PAG). Un proceso para revisar las entradas cuando cambia la norma o la sede (la RVI es el ejemplo). Medir la precisión del clasificador con frases reales y revisar los fallos. Accesibilidad auditada (RD 1112/2018), ENS y análisis RGPD si una Administración la adoptara. Un modelo o proveedor con garantías contractuales de no conservar los datos.
+
+---
+
+# Plantilla del Build night
 
 Plantilla de cada equipo: Next.js y Tailwind, con rutas de servidor para llamar a la IA. La organización crea un repo por equipo a partir de esta carpeta, con los datos de su track, y lo conecta a su proyecto de Vercel. Este directorio tiene su propio `package.json` y `bun.lock`; no depende del workspace del evento.
 
