@@ -42,6 +42,8 @@ export type Resultado = {
     consulta: string;
     url: string;
     resultados: ResultadoPAG[];
+    // Solo cuando no hay fichas: por qué (motivo técnico, sin la frase de la persona).
+    error?: string;
   };
 };
 

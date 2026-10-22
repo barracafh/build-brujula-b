@@ -33,7 +33,8 @@ const CABECERAS = {
   "accept-language": "es",
 };
 const COMUNITAT_VALENCIANA = "10";
-const TIEMPO_MAXIMO = 6_000;
+// Por petición; una búsqueda completa son 2 (sesión) + 1 + hasta 5 en paralelo.
+const TIEMPO_MAXIMO = 8_000;
 
 // Sesión compartida entre peticiones. Las cookies del balanceador (AWSALB)
 // rotan en cada respuesta, así que se actualizan siempre; sin ellas la CDN
@@ -82,6 +83,11 @@ const limpiar = (s: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
+// Fichas que no son un trámite que una persona pueda iniciar: convocatorias
+// para entidades, contratos, oposiciones… El PAG las mezcla con lo demás.
+const NO_CIUDADANIA =
+  /convocatoria|acci[oó]n concertada|concierto social|subvenci|licitaci|contrataci|contrato|oposici|concurso|proveedor|entidades|acreditaci[oó]n de (centros|entidades|empresas)|habilitaci[oó]n (excepcional|de profesionales)/i;
+
 // Tres: a partir del cuarto la relevancia del PAG decae mucho.
 export function extraerResultados(html: string, max = 3): ResultadoPAG[] {
   const resultados: ResultadoPAG[] = [];
@@ -90,7 +96,7 @@ export function extraerResultados(html: string, max = 3): ResultadoPAG[] {
     const codigo = bloque.match(/Ref\.:<\/span>\s*<span>(\d+)/)?.[1];
     const administracion = bloque.match(/Administración:<\/span>\s*<span>([^<]+)/)?.[1];
     const departamento = bloque.match(/Departamento:<\/span>\s*<span>([^<]+)/)?.[1];
-    if (!titulo || !codigo) continue;
+    if (!titulo || !codigo || NO_CIUDADANIA.test(titulo)) continue;
     resultados.push({
       codigoSia: codigo,
       titulo: limpiar(titulo),
@@ -158,10 +164,47 @@ async function enriquecer(resultados: ResultadoPAG[]) {
   );
 }
 
+// Una ficha solo vale si comparte alguna raíz con la consulta en el título o
+// la descripción; si no, el PAG ha devuelto relleno («turismo social» para
+// «tratamiento adicciones alcohol») y es mejor no enseñar nada.
+// Palabras que aparecen en miles de fichas y no distinguen nada: solo cuentan
+// las raíces específicas de la consulta («pasap», «matri», «alcoh»).
+const GENERICAS = new Set(
+  `solicitud solicitar tramite tramitacion tratamiento renovacion renovar expedicion
+   ayuda ayudas subvencion servicio servicios gestion certificado certificacion
+   cita previa informacion inscripcion registro programa autorizacion declaracion
+   comunicacion reconocimiento prestacion procedimiento convocatoria general`
+    .split(/\s+/)
+    .filter(Boolean),
+);
+const raices = (texto: string) => {
+  const palabras = normalizarTexto(texto).split(" ").filter((p) => p.length >= 4);
+  const especificas = palabras.filter((p) => !GENERICAS.has(p));
+  // De más a menos específica: la palabra más larga primero.
+  return (especificas.length ? especificas : palabras)
+    .sort((a, b) => b.length - a.length)
+    .map((p) => p.slice(0, 5));
+};
+const normalizarTexto = (s: string) =>
+  s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ");
+// Vale si contiene la raíz más específica («depen» en «reconocimiento grado
+// dependencia») o al menos dos raíces; «grado» a solas no basta.
+export const pertinente = (r: ResultadoPAG, consulta: string) => {
+  const texto = normalizarTexto(`${r.titulo} ${r.descripcion ?? ""}`);
+  const [principal, ...resto] = raices(consulta);
+  if (!principal || texto.includes(principal)) return true;
+  return resto.filter((raiz) => texto.includes(raiz)).length >= 2;
+};
+
+// Motivo del último fallo del PAG, para diagnosticar en producción (sin la consulta).
+let ultimoFallo: string | null = null;
+export const motivoFalloPAG = () => ultimoFallo;
+
 export async function buscarPAG(
   consulta: string,
   ambito: AmbitoPAG = "estado",
 ): Promise<ResultadoPAG[]> {
+  ultimoFallo = null;
   try {
     await abrirSesion();
     const filtros: Record<string, string> = {
@@ -186,10 +229,42 @@ export async function buscarPAG(
       res = await pedir(url, ajax);
     }
     if (!res.ok) throw new Error(`PAG respondió ${res.status}`);
-    return await enriquecer(extraerResultados(await res.text()));
+    const html = await res.text();
+    const lista = extraerResultados(html, 10);
+    if (!lista.length) {
+      ultimoFallo = `sin fichas en el fragmento (${html.length} bytes, x-cache ${res.headers.get("x-cache") ?? "-"})`;
+      console.warn(`pag: ${ultimoFallo}`);
+      return [];
+    }
+    // Primero las que ya encajan por título; se completan como mucho cinco y
+    // se devuelven las tres primeras que sigan encajando con su descripción.
+    const porTitulo = lista.filter((r) => pertinente(r, consulta));
+    const candidatas = (porTitulo.length ? porTitulo : lista).slice(0, 5);
+    const ricas = await enriquecer(candidatas);
+    // Primero las que llevan la raíz principal en el título; después, por
+    // cuántas raíces de la consulta contienen.
+    const [principal, ...resto] = raices(consulta);
+    const puntuacion = (r: ResultadoPAG) => {
+      const titulo = normalizarTexto(r.titulo);
+      const texto = normalizarTexto(`${r.titulo} ${r.descripcion ?? ""}`);
+      return (
+        (principal && titulo.includes(principal) ? 10 : 0) +
+        [principal, ...resto].filter((raiz) => raiz && texto.includes(raiz)).length
+      );
+    };
+    const finales = ricas
+      .filter((r) => pertinente(r, consulta))
+      .sort((a, b) => puntuacion(b) - puntuacion(a))
+      .slice(0, 3);
+    if (!finales.length) {
+      ultimoFallo = `${lista.length} fichas, ninguna pertinente`;
+      console.warn(`pag: ${ultimoFallo}`);
+    }
+    return finales;
   } catch (e) {
     // Solo el motivo, nunca la consulta.
-    console.warn(`pag: sin resultados (${(e as Error).message})`);
+    ultimoFallo = (e as Error).message;
+    console.warn(`pag: sin resultados (${ultimoFallo})`);
     sesionAbierta = 0;
     return [];
   }
