@@ -11,6 +11,7 @@ import ficha from "../../../ficha.json";
 import { EsperaChat } from "./espera-chat";
 import { RespuestaChat } from "./respuesta-chat";
 import { RosaBrujula } from "./portada-brujula";
+import { BotonHablar } from "./BotonHablar";
 import type { Chat } from "./use-chat";
 import { textosPara } from "@/lib/idioma";
 
@@ -44,9 +45,12 @@ export function ComposerChat({ chat, compacta = false, onCatalogo }: { chat: Cha
             <TooltipTrigger render={<Button variant="secondary" size="icon-lg" onClick={onCatalogo} aria-label={t.catalogo} className={cn(compacta && "hidden sm:inline-flex")} />}><BookOpen aria-hidden="true" /></TooltipTrigger>
             <TooltipContent>{t.catalogo}</TooltipContent>
           </Tooltip>
-          <Button type="submit" variant="sunset" size="icon-lg" aria-label={chat.cargando ? t.buscando : t.enviar} disabled={chat.cargando || !chat.texto.trim()} className="size-10 rounded-xl">
-            {chat.cargando ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> : <ArrowUp aria-hidden="true" className="size-5" />}
-          </Button>
+          <div className="flex items-center gap-1">
+            <BotonHablar chat={chat} />
+            <Button type="submit" variant="sunset" size="icon-lg" aria-label={chat.cargando ? t.buscando : t.enviar} disabled={chat.cargando || !chat.texto.trim()} className="size-10 rounded-xl">
+              {chat.cargando ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> : <ArrowUp aria-hidden="true" className="size-5" />}
+            </Button>
+          </div>
         </InputGroupAddon>
       </InputGroup>
       <p id={`${id}-error`} role="alert" className={cn("text-base text-destructive", chat.aviso && "mt-3")}>{chat.aviso}</p>
