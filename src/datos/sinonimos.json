@@ -1,0 +1,181 @@
+{
+  "prestacion-desempleo": [
+    "me han despedido",
+    "despido",
+    "me quedé sin curro",
+    "sin trabajo",
+    "fin de contrato",
+    "ERE",
+    "pedir el paro",
+    "cobrar el desempleo",
+    "prestación por desempleo",
+    "m'han despatxat",
+    "sense feina"
+  ],
+  "subsidio-desempleo": [
+    "agoté el paro",
+    "se me acaba el paro",
+    "subsidio",
+    "ayuda cuando se acaba el paro",
+    "480 euros",
+    "subsidi d'atur"
+  ],
+  "inscripcion-demandante-labora": [
+    "apuntarme a Labora",
+    "sellar el paro",
+    "renovar la demanda",
+    "DARDE",
+    "demandante de empleo",
+    "inscriure'm com a demandant"
+  ],
+  "alta-padron-valencia": [
+    "me he mudado a Valencia",
+    "mudanza",
+    "empadronarme",
+    "padrón",
+    "alta en el padrón",
+    "nuevo domicilio en Valencia",
+    "canvi de domicili al padró"
+  ],
+  "certificado-empadronamiento": [
+    "volante de empadronamiento",
+    "justificante de residencia",
+    "certificado de residencia",
+    "papel del padrón",
+    "volant d'empadronament"
+  ],
+  "cambio-domicilio-dgt": [
+    "cambiar la dirección en Tráfico",
+    "domicilio del permiso de conducir",
+    "dirección del coche",
+    "me he mudado y tengo coche",
+    "me he mudado",
+    "cambio de domicilio",
+    "DGT"
+  ],
+  "renovacion-dni": [
+    "DNI caducado",
+    "cita DNI",
+    "me han robado el DNI",
+    "he perdido la cartera",
+    "me han robado la cartera",
+    "carnet de identidad",
+    "DNI perdut"
+  ],
+  "vida-laboral": [
+    "informe de vida laboral",
+    "días cotizados",
+    "cuánto he cotizado",
+    "Import@ss",
+    "historial de trabajos"
+  ],
+  "identificacion-digital": [
+    "certificado digital",
+    "Cl@ve PIN",
+    "clave permanente",
+    "identificarme por internet",
+    "firma digital",
+    "FNMT",
+    "certificat digital"
+  ],
+  "declaracion-renta": [
+    "la renta",
+    "IRPF",
+    "borrador de Hacienda",
+    "declaración de la renta",
+    "me sale a pagar",
+    "Hacienda",
+    "declaració de la renda"
+  ],
+  "tarjeta-sanitaria-sip": [
+    "tarjeta SIP",
+    "no tengo médico",
+    "médico de cabecera asignado",
+    "alta en el centro de salud",
+    "tarjeta sanitaria",
+    "targeta sanitària"
+  ],
+  "cita-medica-gva": [
+    "cita con el médico",
+    "pedir cita en el centro de salud",
+    "cita enfermera",
+    "anular cita médico",
+    "cita mèdica"
+  ],
+  "voto-por-correo": [
+    "votar por correo",
+    "voto por correo",
+    "elecciones del 29 de noviembre",
+    "29-N",
+    "no estaré el día de las elecciones",
+    "estaré fuera en las elecciones",
+    "estaré de viaje en noviembre",
+    "vot per correu",
+    "eleccions"
+  ],
+  "multa-dgt": [
+    "multa de tráfico",
+    "multa de velocidad",
+    "radar",
+    "pagar la multa",
+    "recurrir una multa",
+    "sanción de tráfico",
+    "multa de trànsit"
+  ],
+  "ingreso-minimo-vital": [
+    "IMV",
+    "ingreso mínimo vital",
+    "sin ingresos",
+    "no llego a fin de mes",
+    "sin dinero",
+    "ayuda para vivir",
+    "ingrés mínim vital"
+  ],
+  "complemento-ayuda-infancia": [
+    "ayuda por hijos",
+    "CAPI",
+    "ayuda por niño",
+    "hijos a cargo y pocos ingresos",
+    "hijos y no llego a fin de mes",
+    "ajuda per fills"
+  ],
+  "renta-valenciana-inclusion": [
+    "RVI",
+    "renta valenciana de inclusión",
+    "me han denegado el IMV",
+    "renta de inclusión",
+    "renda valenciana d'inclusió",
+    "ayuda económica de servicios sociales"
+  ],
+  "bono-social-electrico": [
+    "bono social",
+    "factura de la luz",
+    "descuento en la luz",
+    "corte de luz",
+    "no puedo pagar la luz",
+    "rebut de la llum",
+    "bo social elèctric"
+  ],
+  "bono-alquiler-joven": [
+    "bono alquiler joven",
+    "ayuda al alquiler",
+    "soy joven y vivo de alquiler",
+    "alquiler de habitación",
+    "menor de 35 alquiler",
+    "ajuda al lloguer"
+  ],
+  "ayudas-comedor-escolar": [
+    "beca comedor",
+    "comedor escolar",
+    "ayuda comedor",
+    "comedor del cole",
+    "beca de menjador"
+  ],
+  "xarxa-llibres": [
+    "banco de libros",
+    "libros de texto gratis",
+    "Xarxa Llibres",
+    "libros del colegio",
+    "llibres de text"
+  ]
+}

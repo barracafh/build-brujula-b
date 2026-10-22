@@ -41,3 +41,13 @@
     }
   }
 }
+
+/* Barra de progreso indeterminada mientras se consulta el modelo. */
+@keyframes deslizar {
+  from {
+    translate: -100% 0;
+  }
+  to {
+    translate: 300% 0;
+  }
+}

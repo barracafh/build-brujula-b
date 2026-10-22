@@ -8,5 +8,7 @@ const basePath = `/${ficha.equipo}`;
 const config: NextConfig = {
   basePath,
   env: { NEXT_PUBLIC_BASE_PATH: basePath },
+  // Que `next dev` no reescriba AGENTS.md, que es material de la organización.
+  agentRules: false,
 };
 export default config;

@@ -25,6 +25,8 @@ export async function completar(messages: Mensaje[]): Promise<string> {
           "content-type": "application/json",
         },
         body: JSON.stringify({ model: HELMCODE_MODEL, messages }),
+        // Si el modelo se cuelga, mejor responder con el buscador que no responder.
+        signal: AbortSignal.timeout(15_000),
       },
     );
     if (res.status === 429 && intento < 3) {
