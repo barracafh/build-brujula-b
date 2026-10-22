@@ -83,13 +83,13 @@ export function HiloChat({ chat, brujula = false }: { chat: Chat; brujula?: bool
     >
       <div role="log" aria-label={chat.textos.conversacion} aria-live="polite" aria-relevant="additions text" className="mx-auto w-full max-w-[800px] space-y-14 px-5 py-8 sm:space-y-16 sm:px-8">
         {chat.turnos.map((turno, i) => {
-          const t = textosPara(turno.idioma, turno.resultado?.textos);
+          const t = textosPara(turno.idioma, turno.resultado?.textos ?? (turno.idioma === chat.idioma ? chat.textos : undefined));
           return (
           <div key={turno.id} data-turno={turno.id} lang={turno.idioma === "ca" ? "ca-valencia" : turno.idioma} ref={i === chat.turnos.length - 1 ? ultimo : undefined} className="space-y-8">
             <div className="flex justify-end"><p className="max-w-[90%] rounded-2xl bg-muted px-5 py-3 text-base leading-relaxed [overflow-wrap:anywhere]"><span className="sr-only">{t.tu}: </span>{turno.pregunta}</p></div>
             <div className="min-w-0">
               <div className="mb-5 flex items-center gap-2.5"><span aria-hidden="true" className="font-mono text-xl text-brand">{ficha.icono}</span><span className="text-sm font-medium">Brújula</span></div>
-              {turno.estado === "cargando" ? <EsperaChat idioma={turno.idioma} texto={t.buscando} icono={brujula ? <RosaBrujula className="size-8 sm:size-8" /> : <LoaderCircle aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />} /> : turno.estado === "error" ? <div className="space-y-4"><p role="alert" className="text-base">{t.noConsulta}</p><Button variant="outline" disabled={chat.cargando} onClick={() => void chat.enviar(turno.pregunta)}>{t.reintentar}</Button></div> : <RespuestaChat turno={turno} chat={chat} destacar={turno.id === ultimaRespuesta} />}
+              {turno.estado === "cargando" ? <EsperaChat idioma={turno.idioma} textos={t} texto={t.buscando} icono={brujula ? <RosaBrujula className="size-8 sm:size-8" /> : <LoaderCircle aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />} /> : turno.estado === "error" ? <div className="space-y-4"><p role="alert" className="text-base">{t.noConsulta}</p><Button variant="outline" disabled={chat.cargando} onClick={() => void chat.enviar(turno.pregunta)}>{t.reintentar}</Button></div> : <RespuestaChat turno={turno} chat={chat} destacar={turno.id === ultimaRespuesta} />}
             </div>
           </div>
         ); })}

@@ -58,8 +58,20 @@ const es = {
   noSe: "No lo sé",
   ayudaAmbito: "Dime qué administración aparece en el documento, sin incluir datos personales. Si no la conoces, puedes consultar el buscador oficial.",
   meInteresa: "Me interesa",
-  noTraduccion: "No he podido traducir la ficha de forma fiable. Puedes consultar la información oficial.",
-  traduccion: "Traducción de la ficha del catálogo. Consulta siempre la fuente oficial.",
+  noTraduccion: "No he podido traducir esta información de forma fiable. Puedes consultar la fuente oficial.",
+  traduccion: "Traducción de la ficha. Consulta siempre la fuente oficial.",
+  pagAviso: "Este trámite no está en nuestro catálogo comprobado: es la ficha oficial del Punto de Acceso General. Confirma pasos y plazos en la sede.",
+  pagComo: "Cómo se tramita",
+  pagSinNivel: "Consulta la ficha oficial.",
+  pagGestiona: "Lo gestiona",
+  pagWeb: "Web oficial",
+  pagFicha: "Ficha oficial",
+  pagTambien: "También puede ser",
+  pagTodos: "Ver todos los resultados en el buscador oficial",
+  pagFichaSia: "Ficha SIA",
+  esperaLenta: "Está tardando más de lo normal: hay mucha gente consultando.",
+  esperaMuyLenta: "Seguimos intentándolo. Si no responde, lo intentaremos con nuestro propio catálogo.",
+  entradaInvalida: "El trámite seleccionado no está en el catálogo.",
 };
 export type Textos = { [K in keyof typeof es]: string };
 
@@ -121,8 +133,20 @@ const ca: Textos = {
   noSe: "No ho sé",
   ayudaAmbito: "Digues quina administració apareix en el document, sense incloure dades personals. Si no la coneixes, pots consultar el cercador oficial.",
   meInteresa: "M'interessa",
-  noTraduccion: "No he pogut traduir la fitxa de manera fiable. Pots consultar la informació oficial.",
-  traduccion: "Traducció de la fitxa del catàleg. Consulta sempre la font oficial.",
+  noTraduccion: "No he pogut traduir esta informació de manera fiable. Pots consultar la font oficial.",
+  traduccion: "Traducció de la fitxa. Consulta sempre la font oficial.",
+  pagAviso: "Este tràmit no està en el nostre catàleg comprovat: és la fitxa oficial del Punt d'Accés General. Confirma passos i terminis en la seu.",
+  pagComo: "Com es tramita",
+  pagSinNivel: "Consulta la fitxa oficial.",
+  pagGestiona: "Ho gestiona",
+  pagWeb: "Web oficial",
+  pagFicha: "Fitxa oficial",
+  pagTambien: "També pot ser",
+  pagTodos: "Veure tots els resultats en el cercador oficial",
+  pagFichaSia: "Fitxa SIA",
+  esperaLenta: "Està tardant més del normal: hi ha molta gent consultant.",
+  esperaMuyLenta: "Continuem intentant-ho. Si no respon, ho intentarem amb el nostre propi catàleg.",
+  entradaInvalida: "El tràmit seleccionat no està en el catàleg.",
 };
 const en: Textos = {
   bienvenida: "What would you like to take care of today?",
@@ -173,7 +197,7 @@ const en: Textos = {
   noConsulta: "I could not check the catalogue.",
   reintentar: "Try again",
   vacio: "Write a message to continue.",
-  largo: "Use no more than 2.000 characters.",
+  largo: "Use no more than 2,000 characters.",
   ambitoPregunta: "Is this a local or national procedure?",
   ambitoGeneral: "Which level of government handles this procedure?",
   local: "Local · Town council",
@@ -182,15 +206,102 @@ const en: Textos = {
   noSe: "I don't know",
   ayudaAmbito: "Tell me which authority is named on the document, without sharing personal data. If you do not know, you can use the official search.",
   meInteresa: "I'm interested in",
-  noTraduccion: "I could not reliably translate the details. Please consult the official information.",
-  traduccion: "Translation of the catalogue entry. Always check the official source.",
+  noTraduccion: "I could not reliably translate this information. Please consult the official source.",
+  traduccion: "Translation of the record. Always check the official source.",
+  pagAviso: "This procedure is not in our verified catalogue: this is the official record from the Punto de Acceso General. Confirm steps and deadlines with the office.",
+  pagComo: "How it is processed",
+  pagSinNivel: "See the official record.",
+  pagGestiona: "Managed by",
+  pagWeb: "Official website",
+  pagFicha: "Official record",
+  pagTambien: "It could also be",
+  pagTodos: "See all results in the official search",
+  pagFichaSia: "SIA record",
+  esperaLenta: "This is taking longer than usual: many people are asking right now.",
+  esperaMuyLenta: "Still trying. If it does not answer, we will fall back to our own catalogue.",
+  entradaInvalida: "The selected procedure is not in the catalogue.",
 };
-export const IDIOMAS_BASE: Record<string, Textos> = { es, ca, en };
+
+const gl: Textos = {
+  bienvenida: "Que trámite queres realizar hoxe?",
+  escribiendo: "Brújula está a escribir…",
+  placeholder: "Cóntame que necesitas…",
+  mensaje: "Mensaxe a Brújula",
+  privacidad: "Sen datos persoais · Non gardamos o chat · Datos simulados",
+  enviar: "Enviar mensaxe",
+  buscando: "Buscando o teu seguinte paso…",
+  guia: "A túa guía de trámites",
+  conversacion: "A túa conversa con Brújula",
+  nueva: "Nova conversa",
+  catalogo: "Trámites e axudas",
+  buscar: "Buscar un trámite…",
+  elegir: "Escolle unha xestión para consultala no chat.",
+  sinResultados: "Sen resultados.",
+  empleo: "Emprego",
+  padron: "Padrón",
+  dni: "DNI",
+  fraseEmpleo: "Despedíronme do traballo",
+  frasePadron: "Mudeime a València",
+  fraseDni: "Cadúcame o DNI",
+  mas: "Máis",
+  tu: "Ti",
+  tramite: "O teu trámite",
+  pasos: "Pasos",
+  pasoAPaso: "Paso a paso",
+  documentos: "Documentos",
+  documentosTitulo: "Documentos que necesitas",
+  requisitos: "Requisitos",
+  plazo: "Prazo",
+  plazoSolicitud: "Prazo de solicitude",
+  sede: "Sede oficial",
+  donde: "Onde se fai",
+  informacion: "Información oficial",
+  relacionados: "Trámites relacionados",
+  despues: "E despois?",
+  preguntaDespues: "E despois, que?",
+  fuentes: "Fontes",
+  fuentesOficiales: "Fontes oficiais",
+  buscador: "Buscador oficial",
+  noConfirmado: "Non o podo confirmar co catálogo. Proba con outras palabras ou consulta o PAG.",
+  noPlazo: "O catálogo non confirma un prazo. Consulta a sede oficial.",
+  noRelacionados: "O catálogo non indica outros trámites relacionados.",
+  sinVerificar: "Sen verificar",
+  avisoVerificacion: "Procedemento sen verificar. Confírmao nos servizos sociais ou no 012.",
+  orientativa: "Coincidencia orientativa. Comproba que se axusta á túa situación.",
+  noConsulta: "Non puiden consultar o catálogo.",
+  reintentar: "Tentar de novo",
+  vacio: "Escribe unha mensaxe para continuar.",
+  largo: "Escribe como máximo 2.000 caracteres.",
+  ambitoPregunta: "É un trámite local ou nacional?",
+  ambitoGeneral: "De que administración é o trámite?",
+  local: "Local · Concello",
+  nacional: "Nacional · Estado",
+  autonomico: "Autonómico · Generalitat",
+  noSe: "Non o sei",
+  ayudaAmbito: "Dime que administración aparece no documento, sen incluír datos persoais. Se non a coñeces, podes consultar o buscador oficial.",
+  meInteresa: "Interésame",
+  noTraduccion: "Non puiden traducir esta información de maneira fiable. Podes consultar a fonte oficial.",
+  traduccion: "Tradución da ficha. Consulta sempre a fonte oficial.",
+  pagAviso: "Este trámite non está no noso catálogo comprobado: é a ficha oficial do Punto de Acceso Xeral. Confirma os pasos e os prazos na sede.",
+  pagComo: "Como se tramita",
+  pagSinNivel: "Consulta a ficha oficial.",
+  pagGestiona: "Xestiónao",
+  pagWeb: "Web oficial",
+  pagFicha: "Ficha oficial",
+  pagTambien: "Tamén pode ser",
+  pagTodos: "Ver todos os resultados no buscador oficial",
+  pagFichaSia: "Ficha SIA",
+  esperaLenta: "Está a tardar máis do normal: hai moita xente consultando.",
+  esperaMuyLenta: "Seguimos intentándoo. Se non responde, tentarémolo co noso propio catálogo.",
+  entradaInvalida: "O trámite seleccionado non está no catálogo.",
+};
+export const IDIOMAS_BASE: Record<string, Textos> = { es, ca, en, gl };
 
 export function normalizarIdioma(value: unknown): string | undefined {
   if (typeof value !== "string") return;
   const raw = value.toLowerCase().trim().replace(/_/g, "-");
   if (["va", "val", "valenciano", "valencià", "ca-valencia", "catalan"].includes(raw)) return "ca";
+  if (["galego", "gallego", "glg"].includes(raw)) return "gl";
   if (!/^[a-z]{2,3}(?:-[a-z0-9]{2,8}){0,2}$/.test(raw)) return;
   return raw.split("-")[0];
 }
@@ -200,15 +311,23 @@ export function textosPara(idioma = "es", traducidos?: Partial<Textos>): Textos 
 }
 
 export function detectarIdioma(texto: string, anterior = "es"): string {
+  const previo = normalizarIdioma(anterior) ?? "es";
   const t = texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   if (/\b(en valenciano|en catala|in valencian)\b/.test(t) || /(?:^|\s)en valencià(?:\s|[.!?]|$)/u.test(texto.toLowerCase())) return "ca";
   if (/\b(en castellano|en espanol|in spanish)\b/.test(t)) return "es";
   if (/\b(en ingles|in english)\b/.test(t)) return "en";
+  if (/\b(en galego|en gallego|in galician)\b/.test(t)) return "gl";
+  if (/^(dni|ok|local|nacional|documentos|documentacion|documents|requisitos|pasos|tramites)[.!?]*$/.test(t.trim())) return normalizarIdioma(anterior) ?? "es";
   const valenciano = (t.match(/\b(vull|tinc|puc|hui|tramit|tramits|necessite|necessito|quins|quines|meua|teua|faena|feina|atur|requisits|termini|ajuntament|multa de transit|empadronar|caduca el meu|bon dia|m'han|com puc|no ho se|amb|per a|soc|estic|lloguer|llum|fills)\b/g) ?? []).length;
-  const castellano = (t.match(/\b(quiero|tengo|puedo|necesito|cuales|documentacion|tramite|tramites|ayuntamiento|trabajo|hijos|alquiler|luz|donde|como puedo|no lo se|he mudado|me han|se me)\b/g) ?? []).length;
-  const ingles = (t.match(/\b(i need|i want|how do|how can|which|please|documents|unemployment|renew|national|local council|i don't know)\b/g) ?? []).length;
-  if (valenciano > castellano && valenciano >= ingles) return "ca";
-  if (castellano > valenciano && castellano >= ingles) return "es";
-  if (ingles > 0 && ingles > valenciano && ingles > castellano) return "en";
-  return normalizarIdioma(anterior) ?? "es";
+  const castellano = (t.match(/\b(quiero|tengo|puedo|cuales|cumplir|ayuntamiento|trabajo|hijos|alquiler|luz|donde|como puedo|no lo se|he mudado|me han|se me)\b/g) ?? []).length
+    + (previo === "gl" ? 0 : (t.match(/\b(necesito|documentacion|tramite|tramites)\b/g) ?? []).length);
+  const ingles = (t.match(/\b(i need|i want|how do|how can|which|please|documents|requirements|deadline|what are|where do|what next|what comes next|steps|unemployment|renew|national|local council|i don't know)\b/g) ?? []).length;
+  // Palabras compartidas con portugués no deben cambiar una conversación
+  // ya identificada en ese idioma a gallego por una repregunta breve.
+  const textoGalego = IDIOMAS_BASE[previo] ? t : t.replace(/\b(preciso|quero|queria|meu|tua|onde)\b/g, "");
+  const galego = (textoGalego.match(/\b(quero|queria|teno|podo|hoxe|grazas|cales|preciso|prazo|cumprir|despois|onde|fago|axuda|axudas|concello|traballo|despedironme|mudeime|documentacion preciso|non o sei|meu|mina|tua|galego)\b/g) ?? []).length;
+  const puntuaciones = [["ca", valenciano], ["es", castellano], ["en", ingles], ["gl", galego]] as const;
+  const ordenadas = [...puntuaciones].sort((a, b) => b[1] - a[1]);
+  if (ordenadas[0][1] > 0 && ordenadas[0][1] > ordenadas[1][1]) return ordenadas[0][0];
+  return previo;
 }

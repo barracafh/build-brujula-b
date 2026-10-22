@@ -31,6 +31,12 @@ export function RespuestaChat({ turno, chat, destacar = false }: { turno: TurnoC
   const entrada = turno.resultado?.entradas[0];
   // Fuera de catálogo: si el buscador oficial del PAG tiene fichas, la primera es la respuesta.
   const pag = turno.resultado?.pag;
+  if (turno.resultado?.traduccionDisponible === false) {
+    const fichaPag = pag?.resultados[0];
+    const destino = entrada?.enlace_tramite ?? entrada?.enlace_info ?? fichaPag?.enlaceWeb ?? fichaPag?.url ?? pag?.url ?? PAG.url;
+    const fuentes = entrada ? fuentesDe(entrada) : fichaPag ? [{ nombre: "PAG", url: fichaPag.url }] : [PAG];
+    return <article className="space-y-5 text-base"><p>{t.noTraduccion}</p><div className="flex flex-wrap gap-3"><a href={destino} className={buttonVariants({ variant: "outline", size: "lg" })}>{t.informacion}<ArrowUpRight aria-hidden="true" /></a><FuentesPopover fuentes={fuentes} textos={t} /></div></article>;
+  }
   if ((!entrada || turno.resultado?.fueraCatalogo) && pag && pag.resultados.length > 0) return (
     <RespuestaPAGChat turno={turno} pag={pag} destacar={destacar} />
   );
@@ -47,10 +53,6 @@ export function RespuestaChat({ turno, chat, destacar = false }: { turno: TurnoC
   const destino = entrada.enlace_tramite ?? entrada.enlace_info;
   const fuentes = enfoque === "relacionados" ? [...new Map([entrada, ...siguientes].flatMap(fuentesDe).map((f) => [f.url, f])).values()] : fuentesDe(entrada);
   const traducida = (turno.resultado?.idioma ?? turno.idioma ?? "es") !== "es";
-
-  if (turno.resultado?.traduccionDisponible === false) return (
-    <article className="space-y-5 text-base"><p>{t.noTraduccion}</p><div className="flex flex-wrap gap-3"><a href={destino} className={buttonVariants({ variant: "outline", size: "lg" })}>{t.informacion}<ArrowUpRight aria-hidden="true" /></a><FuentesPopover fuentes={fuentes} textos={t} /></div></article>
-  );
 
   function contenido(tipo: Enfoque) {
     if (tipo === "pasos") return <ol className="space-y-5">{entrada!.pasos.map((paso, i) => <li key={paso} className="grid grid-cols-[20px_minmax(0,1fr)] gap-4"><span aria-hidden="true" className="pt-0.5 font-mono text-xs text-brand">{String(i + 1).padStart(2, "0")}</span><span className="leading-7">{paso}</span></li>)}</ol>;

@@ -25,6 +25,10 @@ export type Entrada = {
   relacionados: string[];
 };
 
+// Los enlaces relacionados solo necesitan título, verificación y fuentes.
+// Su ficha completa se carga al abrirlos, en el idioma de la conversación.
+export type EntradaRelacionada = Pick<Entrada, "id" | "titulo" | "verificado" | "fuente" | "enlace_info">;
+
 // Lo que devuelve POST /api/tramite y consume el buscador.
 export type Resultado = {
   entradas: Entrada[];
@@ -35,7 +39,7 @@ export type Resultado = {
   idioma?: string;
   textos?: Textos;
   aclaracion?: AclaracionAmbito;
-  relacionadas?: Entrada[];
+  relacionadas?: EntradaRelacionada[];
   traduccionDisponible?: boolean;
   // Solo fuera de catálogo: lo que encuentra el buscador oficial del PAG.
   pag?: {
@@ -120,7 +124,7 @@ export function nombreFuente(url: string) {
 
 // Las fuentes de una entrada: el campo `fuente` (varias URLs separadas por ";")
 // y la página informativa. El enlace al trámite va aparte, en «Dónde se hace».
-export function fuentesDe(entrada: Entrada): Source[] {
+export function fuentesDe(entrada: Pick<Entrada, "fuente" | "enlace_info">): Source[] {
   const vistas = new Set<string>();
   return [...entrada.fuente.split(/\s*;\s*/), entrada.enlace_info]
     .map((u) => u.trim())

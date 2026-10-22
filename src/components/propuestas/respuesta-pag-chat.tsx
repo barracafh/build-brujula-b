@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import type { Source } from "@/components/Fuentes";
 import { nombreFuente, PAG, type Resultado } from "@/lib/catalogo";
 import { cn } from "@/lib/utils";
+import { textosPara } from "@/lib/idioma";
 import { FuentesPopover } from "./respuesta-chat";
 import type { TurnoChat } from "./use-chat";
 
@@ -15,42 +16,6 @@ import type { TurnoChat } from "./use-chat";
 // oficial del PAG sí: se enseña la ficha oficial del primer resultado con la
 // misma composición que una respuesta del catálogo. Todo el contenido viene de
 // la ficha; aquí no se redacta nada.
-const TEXTOS = {
-  es: {
-    aviso: "Este trámite no está en nuestro catálogo comprobado: es la ficha oficial del Punto de Acceso General. Confirma pasos y plazos en la sede.",
-    comoSeTramita: "Cómo se tramita",
-    sinNivel: "Consulta la ficha oficial.",
-    gestiona: "Lo gestiona",
-    web: "Web oficial",
-    ficha: "Ficha oficial",
-    tambien: "También puede ser",
-    verTodos: "Ver todos los resultados en el buscador oficial",
-    fichaPag: "Ficha SIA",
-  },
-  ca: {
-    aviso: "Este tràmit no està en el nostre catàleg comprovat: és la fitxa oficial del Punt d'Accés General. Confirma passos i terminis en la seu.",
-    comoSeTramita: "Com es tramita",
-    sinNivel: "Consulta la fitxa oficial.",
-    gestiona: "Ho gestiona",
-    web: "Web oficial",
-    ficha: "Fitxa oficial",
-    tambien: "També pot ser",
-    verTodos: "Veure tots els resultats en el cercador oficial",
-    fichaPag: "Fitxa SIA",
-  },
-  en: {
-    aviso: "This procedure is not in our verified catalogue: this is the official record from the Punto de Acceso General. Confirm steps and deadlines with the office.",
-    comoSeTramita: "How it is processed",
-    sinNivel: "See the official record.",
-    gestiona: "Managed by",
-    web: "Official website",
-    ficha: "Official record",
-    tambien: "It could also be",
-    verTodos: "See all results in the official search",
-    fichaPag: "SIA record",
-  },
-};
-
 export function RespuestaPAGChat({
   turno,
   pag,
@@ -61,13 +26,13 @@ export function RespuestaPAGChat({
   destacar?: boolean;
 }) {
   const idioma = turno.resultado?.idioma ?? turno.idioma ?? "es";
-  const t = TEXTOS[idioma as keyof typeof TEXTOS] ?? TEXTOS.es;
+  const t = textosPara(idioma, turno.resultado?.textos);
   const [codigo, setCodigo] = useState(pag.resultados[0].codigoSia);
   const actual = pag.resultados.find((r) => r.codigoSia === codigo) ?? pag.resultados[0];
   const otros = pag.resultados.filter((r) => r.codigoSia !== actual.codigoSia);
   const destino = actual.enlaceWeb ?? actual.url;
   const fuentes: Source[] = [
-    { nombre: `${t.fichaPag} ${actual.codigoSia} · Punto de Acceso General`, url: actual.url },
+    { nombre: `${t.pagFichaSia} ${actual.codigoSia} · Punto de Acceso General`, url: actual.url },
     ...(actual.enlaceWeb ? [{ nombre: nombreFuente(actual.enlaceWeb), url: actual.enlaceWeb }] : []),
     PAG,
   ];
@@ -83,15 +48,15 @@ export function RespuestaPAGChat({
           <span className="font-mono text-sm">SIA {actual.codigoSia}</span>
         </p>
       </div>
-      <p className="text-base text-(--text-secondary)">{t.aviso}</p>
+      <p className="text-base text-(--text-secondary)">{t.pagAviso}</p>
       {actual.descripcion && <p className="leading-7">{actual.descripcion}</p>}
       <div className="grid gap-3 sm:grid-cols-2">
         <Card className={cn("gap-2 ring-0", destacar ? "bg-brand-yellow" : "bg-muted")}>
-          <CardHeader><CardTitle>{t.comoSeTramita}</CardTitle></CardHeader>
-          <CardContent className="text-base leading-7">{actual.nivelTramitacion ?? t.sinNivel}</CardContent>
+          <CardHeader><CardTitle>{t.pagComo}</CardTitle></CardHeader>
+          <CardContent className="text-base leading-7">{actual.nivelTramitacion ?? t.pagSinNivel}</CardContent>
         </Card>
         <Card className="gap-2 bg-muted ring-0">
-          <CardHeader><CardTitle>{t.gestiona}</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t.pagGestiona}</CardTitle></CardHeader>
           <CardContent className="text-base leading-7">{actual.departamento}</CardContent>
         </Card>
       </div>
@@ -100,16 +65,16 @@ export function RespuestaPAGChat({
         <a
           href={destino}
           className={cn(buttonVariants({ variant: "outline", size: "lg" }), "gap-2 px-4")}
-          aria-label={`${actual.enlaceWeb ? t.web : t.ficha} · ${actual.titulo}`}
+          aria-label={`${actual.enlaceWeb ? t.pagWeb : t.pagFicha} · ${actual.titulo}`}
         >
-          {actual.enlaceWeb ? t.web : t.ficha}
+          {actual.enlaceWeb ? t.pagWeb : t.pagFicha}
           <ArrowUpRight aria-hidden="true" />
         </a>
-        <FuentesPopover fuentes={fuentes} />
+        <FuentesPopover fuentes={fuentes} textos={t} traducida={idioma !== "es"} />
       </div>
       {otros.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-medium text-(--text-secondary)">{t.tambien}</p>
+          <p className="text-sm font-medium text-(--text-secondary)">{t.pagTambien}</p>
           {otros.map((r) => (
             <Button
               key={r.codigoSia}
@@ -125,7 +90,7 @@ export function RespuestaPAGChat({
             </Button>
           ))}
           <p className="text-sm">
-            <a href={pag.url} className="underline underline-offset-4">{t.verTodos}</a>
+            <a href={pag.url} className="underline underline-offset-4">{t.pagTodos}</a>
           </p>
         </div>
       )}

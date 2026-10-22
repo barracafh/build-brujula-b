@@ -10,7 +10,7 @@ export type Mensaje = {
   content: string | Parte[];
 };
 
-export async function completar(messages: Mensaje[]): Promise<string> {
+export async function completar(messages: Mensaje[], opciones: { timeoutMs?: number } = {}): Promise<string> {
   const { HELMCODE_API_KEY, HELMCODE_BASE_URL, HELMCODE_MODEL } = process.env;
   if (!HELMCODE_API_KEY || !HELMCODE_MODEL)
     throw new Error("Faltan HELMCODE_API_KEY o HELMCODE_MODEL en .env.local");
@@ -20,6 +20,7 @@ export async function completar(messages: Mensaje[]): Promise<string> {
       `${HELMCODE_BASE_URL ?? "https://api.helmcode.com/v1"}/chat/completions`,
       {
         method: "POST",
+        cache: "no-store",
         headers: {
           authorization: `Bearer ${HELMCODE_API_KEY}`,
           "content-type": "application/json",
@@ -27,7 +28,7 @@ export async function completar(messages: Mensaje[]): Promise<string> {
         body: JSON.stringify({ model: HELMCODE_MODEL, messages }),
         // Si el modelo se cuelga, mejor responder con el buscador que no responder.
         // 20 s: con el evento a tope se han visto respuestas correctas de 14–15 s.
-        signal: AbortSignal.timeout(20_000),
+        signal: AbortSignal.timeout(opciones.timeoutMs ?? 20_000),
       },
     );
     if (res.status === 429 && intento < 3) {

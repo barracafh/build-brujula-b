@@ -23,6 +23,12 @@ type Opciones = { consulta?: string; ambito?: Ambito; entradaId?: string; idioma
 
 export function detectarRepregunta(texto: string): Enfoque | undefined {
   const t = texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[¿?¡!.,;:]/g, "").trim();
+  if (/^(e )?(que |cales son os )?documentos( preciso| necesito| fan falta)?$/.test(t)) return "documentacion";
+  if (/^(e )?(cal e o |que |o )?prazo( teno| hai)?$/.test(t) || t === "canto tempo teno") return "plazo";
+  if (/^(e )?(cales son os |que |os )?requisitos( preciso| debo cumprir)?$/.test(t)) return "requisitos";
+  if (/^(e )?(cales son os |os )?pasos$/.test(t) || t === "como o fago") return "pasos";
+  if (/^(e )?(onde se fai|onde o pido|onde o fago|cal e a sede)$/.test(t)) return "sede";
+  if (/^(e )?(despois|que mais)( que)?$/.test(t)) return "relacionados";
   if (/^(y )?(que )?(documentos|documentacion|papeles)( necesito| hacen falta| tengo que llevar)?$/.test(t) || /^(i )?(quins |quina |els )?(documents|documentacio|papers)( necessite| necessito| fan falta)?$/.test(t) || /^(what |which )?documents( do i need| are needed)?$/.test(t)) return "documentacion";
   if (/^(y )?(cual es el |que |el )?(plazo|plazos)( tengo| hay)?$/.test(t) || /^(i )?(quin es el |quin |el )?termini( tinc| hi ha)?$/.test(t) || /^(what is the |the )?deadline$/.test(t) || /^(cuanto tiempo tengo|hasta cuando puedo pedirlo|quant de temps tinc)$/.test(t)) return "plazo";
   if (/^(y )?(que |los )?requisitos( necesito| hay| debo cumplir)?$/.test(t) || /^(i )?(quins |els )?requisits( necessite| he de complir)?$/.test(t) || /^(what are the )?requirements$/.test(t)) return "requisitos";
@@ -46,6 +52,8 @@ export function useChat() {
   const contexto = useRef<Resultado | null>(null);
   const duda = useRef<Duda | null>(null);
   const fichas = useRef(new Map<string, Map<string, Entrada>>());
+  const respuestas = useRef(new Map<string, Map<string, Resultado>>());
+  const titulos = useRef(new Map<string, Map<string, string>>());
 
   useEffect(() => () => pendiente.current?.abort(), []);
 
@@ -90,8 +98,16 @@ export function useChat() {
       if (resultado.traduccionDisponible !== false) {
         const lang = idiomaRespuesta;
         const mapa = fichas.current.get(lang) ?? new Map<string, Entrada>();
-        for (const entrada of [...resultado.entradas, ...(resultado.relacionadas ?? [])]) mapa.set(entrada.id, entrada);
+        const guardadas = respuestas.current.get(lang) ?? new Map<string, Resultado>();
+        const nombres = titulos.current.get(lang) ?? new Map<string, string>();
+        for (const entrada of resultado.entradas) {
+          mapa.set(entrada.id, entrada);
+          guardadas.set(entrada.id, { ...resultado, entradas: [entrada] });
+        }
+        for (const entrada of [...resultado.entradas, ...(resultado.relacionadas ?? [])]) nombres.set(entrada.id, entrada.titulo);
         fichas.current.set(lang, mapa);
+        respuestas.current.set(lang, guardadas);
+        titulos.current.set(lang, nombres);
       }
       setTurnos((previos) => previos.map((t) => t.id === id ? { ...t, idioma: idiomaRespuesta, estado: "listo", resultado } : t));
     } catch {
@@ -147,7 +163,7 @@ export function useChat() {
     const enfoque = detectarRepregunta(limpia);
     if (enfoque && contexto.current?.entradas.length) { preguntar(limpia, enfoque); return; }
     // Permite cambiar de idioma sin perder la ficha que ya se estaba mirando.
-    if (/^(?:en |responde|respon|parla|habla|in english)/i.test(limpia) && codigo !== (contexto.current?.idioma ?? "es") && contexto.current?.entradas.length) {
+    if (/^(?:en |responde|respon|parla|habla|fala|in english)/i.test(limpia) && codigo !== (contexto.current?.idioma ?? "es") && contexto.current?.entradas.length) {
       void solicitar(limpia, { entradaId: contexto.current.entradas[0].id, idioma: codigo }); return;
     }
     await solicitar(limpia, { idioma: codigo });
@@ -158,9 +174,11 @@ export function useChat() {
     const idioma = idiomaActual.current;
     const mapa = fichas.current.get(idioma);
     const entrada = mapa?.get(id) ?? (idioma === "es" ? porId(id) : undefined);
-    const pregunta = `${textosActuales.current.meInteresa}: ${(entrada ?? porId(id))?.titulo ?? id}`;
-    if (entrada && (idioma === "es" || entrada.relacionados.every((r) => mapa?.has(r)))) {
-      const siguientes = entrada.relacionados.map((r) => mapa?.get(r) ?? porId(r)).filter((e): e is Entrada => Boolean(e));
+    const respuesta = respuestas.current.get(idioma)?.get(id);
+    const pregunta = `${textosActuales.current.meInteresa}: ${titulos.current.get(idioma)?.get(id) ?? (entrada ?? porId(id))?.titulo ?? id}`;
+    if (respuesta) preguntar(pregunta, "resumen", respuesta);
+    else if (entrada && idioma === "es") {
+      const siguientes = entrada.relacionados.map(porId).filter((e): e is Entrada => Boolean(e));
       preguntar(pregunta, "resumen", { entradas: [entrada], relacionadas: siguientes, fueraCatalogo: false, confianza: "alta", origen: "frases", idioma, textos: textosActuales.current, traduccionDisponible: true });
     } else void solicitar(pregunta, { entradaId: id, idioma });
   }, [preguntar, solicitar]);
@@ -183,7 +201,10 @@ export function useChat() {
     seleccionado: turnos.find((t) => t.id === seleccion),
     cargando: turnos.some((t) => t.estado === "cargando"),
     enviar, preguntar, abrirEntrada, elegirAmbito, reiniciar, seleccionar,
-    entradaLocalizada: (id: string) => fichas.current.get(idiomaActual.current)?.get(id) ?? porId(id),
+    entradaLocalizada: (id: string) => {
+      const e = porId(id);
+      return e ? { id: e.id, titulo: titulos.current.get(idiomaActual.current)?.get(id) ?? e.titulo, verificado: e.verificado, frases_usuario: e.frases_usuario } : undefined;
+    },
   };
 }
 export type Chat = ReturnType<typeof useChat>;
