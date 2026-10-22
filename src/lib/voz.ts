@@ -7,10 +7,10 @@ import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 
 const BASE_HELM = process.env.HELMCODE_BASE_URL ?? "https://api.helmcode.com/v1";
 
-// Voz de ElevenLabs (Alice, multilingüe y conversacional). Se puede cambiar con
-// ELEVENLABS_VOICE_ID en .env.local. Voces kokoro en español: ef_dora, em_alex.
+// Voz de ElevenLabs: Maria, andaluza, cálida y clara (añadida desde la
+// biblioteca de voces). Se puede cambiar con ELEVENLABS_VOICE_ID en .env.local.
 export const VOZ_POR_DEFECTO = "ef_dora";
-const VOZ_ELEVEN = process.env.ELEVENLABS_VOICE_ID ?? "Xb7hH8MSUJpSbSDYk0k2";
+const VOZ_ELEVEN = process.env.ELEVENLABS_VOICE_ID ?? "GszuzIPs4fVZTjP0EXrv";
 const MODELO_STT = process.env.ELEVENLABS_STT_MODEL ?? "scribe_v2";
 const MODELO_TTS = process.env.ELEVENLABS_TTS_MODEL ?? "eleven_flash_v2_5";
 

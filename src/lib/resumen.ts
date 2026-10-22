@@ -1,7 +1,8 @@
 import type { Resultado } from "./catalogo";
 
-// El resumen que Brújula lee en voz alta. Se compone solo con texto del
-// catálogo: como en la pantalla, el modelo nunca redacta la respuesta.
+// Lo que Brújula lee en voz alta. Es, tal cual, lo que devuelve la API
+// (/api/tramite): título, todos los pasos en su orden, documentación, plazo y
+// organismo. Nada se inventa ni se resume: el catálogo manda, como en pantalla.
 export function resumenVoz(resultado: Resultado): string {
   const entrada = resultado.entradas[0];
   if (!entrada)
@@ -11,27 +12,31 @@ export function resumenVoz(resultado: Resultado): string {
   if (resultado.confianza === "baja")
     partes.push("No estoy del todo seguro de que sea esto, pero miro.");
 
-  partes.push(`Te corresponde: ${entrada.titulo}.`);
+  partes.push(
+    `${entrada.tipo === "ayuda" ? "La ayuda" : "El trámite"} que te corresponde es: ${entrada.titulo}.`,
+  );
 
-  const pasos = entrada.pasos;
-  if (pasos.length === 1) partes.push(`Un solo paso: ${pasos[0]}`);
-  else if (pasos.length > 1) {
-    partes.push(`Son ${pasos.length} pasos. El primero: ${primero(pasos[0])}`);
-    partes.push(`El segundo: ${primero(pasos[1])}.`);
-  }
+  entrada.pasos.forEach((paso, i) => {
+    partes.push(`Paso ${i + 1}: ${paso}.`);
+  });
+
+  if (entrada.documentacion.length)
+    partes.push(`Vas a necesitar: ${lista(entrada.documentacion)}.`);
 
   partes.push(
     entrada.plazo
-      ? `El plazo: ${entrada.plazo}`
+      ? `Atención al plazo: ${entrada.plazo}.`
       : "No hay plazo fijo: se puede pedir en cualquier momento.",
   );
 
-  partes.push("Te dejo la documentación y el enlace a la sede en pantalla. Pulsa el micrófono si quieres que sigamos.");
+  partes.push(
+    `Lo tramita ${entrada.organismo}. El enlace a la sede y más detalles te los dejo en pantalla.`,
+  );
   return partes.join(" ");
 }
 
-// Recorta un paso a una frase razonable para leer en voz alta.
-const primero = (paso: string) => {
-  const corto = paso.length > 140 ? `${paso.slice(0, 140).trimEnd()}…` : paso;
-  return corto.charAt(0).toLowerCase() + corto.slice(1);
+// Una lista leída con naturalidad: "a, b y c".
+const lista = (elementos: string[]) => {
+  if (elementos.length <= 1) return elementos[0] ?? "";
+  return `${elementos.slice(0, -1).join(", ")} y ${elementos[elementos.length - 1]}`;
 };

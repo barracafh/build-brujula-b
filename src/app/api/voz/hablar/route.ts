@@ -1,8 +1,8 @@
 import { hablar } from "@/lib/voz";
 
-// POST {"texto": "…"} → audio (audio/mpeg). El resumen se compone en el
-// navegador a partir del catálogo; aquí solo se convierte en voz. Nada se guarda.
-const MAXIMO = 800;
+// POST {"texto": "…"} → audio (audio/mpeg). La voz lee lo que devuelve
+// /api/tramite; aquí solo se convierte en voz. Nada se guarda.
+const MAXIMO = 1500;
 
 export async function POST(req: Request) {
   const { texto } = (await req.json().catch(() => ({}))) as { texto?: unknown };
