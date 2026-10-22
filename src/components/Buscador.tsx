@@ -76,25 +76,37 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
     }
   }
 
-  async function enviar(frase: string) {
+  // El envío, compartido por el buscador escrito y la voz: escribe la frase en
+  // la caja, consulta y pinta el resultado en pantalla. La voz lo reutiliza y
+  // además usa el valor devuelto para leerlo. Lo que se escribe o habla viaja
+  // una sola vez (POST) y no se guarda en ningún sitio.
+  async function enviar(frase: string, historial: string[] = []): Promise<Resultado | null> {
     const limpia = frase.trim();
-    if (!limpia) return setAviso("Cuéntanos qué te pasa en una frase.");
-    if (limpia.length > MAXIMO)
-      return setAviso(`Escribe como máximo ${MAXIMO} caracteres.`);
+    if (!limpia) {
+      setAviso("Cuéntanos qué te pasa en una frase.");
+      return null;
+    }
+    if (limpia.length > MAXIMO) {
+      setAviso(`Escribe como máximo ${MAXIMO} caracteres.`);
+      return null;
+    }
+    setTexto(limpia);
     setAviso(null);
     setEstado("cargando");
     setLento(false);
     if (avisoLento.current) clearTimeout(avisoLento.current);
     avisoLento.current = setTimeout(() => setLento(true), 1500);
     try {
-      const datos = await consultar(frase);
+      const datos = await consultar(frase, historial);
       setResultado(datos);
       setActual(datos.entradas[0]?.id ?? null);
       setActualPag(datos.pag?.resultados[0]?.codigoSia ?? null);
       setEstado("listo");
+      return datos;
     } catch (e) {
-      if ((e as Error).name === "AbortError") return;
+      if ((e as Error).name === "AbortError") return null;
       setEstado("error");
+      return null;
     }
   }
 
@@ -158,7 +170,7 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
         </p>
       </form>
 
-      <Conversacion consultar={consultar} />
+      <Conversacion consultar={enviar} />
 
       {estado === "inicio" && ejemplos.length > 0 && (
         <div className="mt-4">

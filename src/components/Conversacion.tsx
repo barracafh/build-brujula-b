@@ -22,7 +22,7 @@ type Estado =
 export function Conversacion({
   consultar,
 }: {
-  consultar: (frase: string, historial: string[]) => Promise<Resultado>;
+  consultar: (frase: string, historial: string[]) => Promise<Resultado | null>;
 }) {
   const [estado, setEstado] = useState<Estado>("aparado");
   const [aviso, setAviso] = useState<string | null>(null);
@@ -77,16 +77,22 @@ export function Conversacion({
         frases.current = [...frases.current.slice(-4), frase];
         setTurnos((t) => [...t, { frase }]);
 
-        // 2. Pensar: la misma consulta que el buscador escrito, con historial.
+        // 2. Pensar y pintar: el mismo envío que el buscador escrito — escribe
+        // la frase en la caja y muestra el resultado completo en pantalla — y
+        // devuelve el resultado para leerlo en voz alta.
         setEstado("consultando");
         const resultado = await consultar(frase, frases.current.slice(0, -1));
 
-        // 3. Hablar: resumen compuesto con el catálogo, voz de ElevenLabs.
+        // 3. Hablar: lo que devuelve la API, leído por la voz.
         setEstado("hablando");
         const resVoz = await fetch(ruta("/api/voz/hablar"), {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ texto: resumenVoz(resultado) }),
+          body: JSON.stringify({
+            texto: resultado
+              ? resumenVoz(resultado)
+              : "No hemos podido consultar el catálogo. Inténtalo de nuevo en un momento.",
+          }),
         });
         if (!resVoz.ok) throw new Error(`HTTP ${resVoz.status}`);
         const url = URL.createObjectURL(await resVoz.blob());
