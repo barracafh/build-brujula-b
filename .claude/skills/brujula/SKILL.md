@@ -80,7 +80,7 @@ buildnight registrar              # final hand-in
 
 ## Ship
 
-Work on `main` (branches have no preview). Identity in this folder is the personal account `archector` / `hectoragoncalvesp@gmail.com`; confirm with `git var GIT_COMMITTER_IDENT` if in doubt.
+Work on `main` (branches have no preview). Git in this folder uses the personal GitHub account configured in `~/.gitconfig-hackathon`; confirm with `git var GIT_COMMITTER_IDENT` if in doubt.
 
 ```sh
 git pull --rebase                 # someone else may have pushed
