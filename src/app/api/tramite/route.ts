@@ -1,7 +1,7 @@
 import { buscar } from "@/lib/buscar";
 import { clasificar } from "@/lib/clasificar";
 import { porId, type Entrada, type Resultado } from "@/lib/catalogo";
-import { buscarPAG, urlBusquedaPAG } from "@/lib/pag";
+import { buscarPAG, motivoFalloPAG, urlBusquedaPAG } from "@/lib/pag";
 
 // POST {"texto": "me han echado del trabajo"} → Resultado.
 // Lo que escribe el ciudadano no se guarda ni se registra en ningún sitio; por
@@ -43,12 +43,16 @@ export async function POST(req: Request) {
   // Fuera de catálogo: enseñamos lo que encuentra el buscador oficial con la
   // consulta que propone el modelo (palabras clave, no la frase de la persona).
   // Al PAG solo viaja esa consulta. Si el PAG no responde, queda el enlace genérico.
-  if (resultado.fueraCatalogo && ia?.busqueda)
+  if (resultado.fueraCatalogo && ia?.busqueda) {
+    const resultados = await buscarPAG(ia.busqueda, ia.ambito);
     resultado.pag = {
       consulta: ia.busqueda,
       url: urlBusquedaPAG(ia.busqueda),
-      resultados: await buscarPAG(ia.busqueda, ia.ambito),
+      resultados,
+      // Sin fichas: el motivo (nunca la frase de la persona), para diagnosticar en producción.
+      ...(resultados.length ? {} : { error: motivoFalloPAG() ?? "sin motivo registrado" }),
     };
+  }
 
   return Response.json(resultado, {
     headers: { "cache-control": "no-store" },

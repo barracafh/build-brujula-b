@@ -26,7 +26,8 @@ export async function completar(messages: Mensaje[]): Promise<string> {
         },
         body: JSON.stringify({ model: HELMCODE_MODEL, messages }),
         // Si el modelo se cuelga, mejor responder con el buscador que no responder.
-        signal: AbortSignal.timeout(15_000),
+        // 20 s: con el evento a tope se han visto respuestas correctas de 14–15 s.
+        signal: AbortSignal.timeout(20_000),
       },
     );
     if (res.status === 429 && intento < 3) {

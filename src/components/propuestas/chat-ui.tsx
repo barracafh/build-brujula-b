@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import ficha from "../../../ficha.json";
+import { EsperaChat } from "./espera-chat";
 import { RespuestaChat } from "./respuesta-chat";
 import { RosaBrujula } from "./portada-brujula";
 import type { Chat } from "./use-chat";
@@ -88,7 +89,7 @@ export function HiloChat({ chat, brujula = false }: { chat: Chat; brujula?: bool
             <div className="flex justify-end"><p className="max-w-[90%] rounded-2xl bg-muted px-5 py-3 text-base leading-relaxed [overflow-wrap:anywhere]"><span className="sr-only">{t.tu}: </span>{turno.pregunta}</p></div>
             <div className="min-w-0">
               <div className="mb-5 flex items-center gap-2.5"><span aria-hidden="true" className="font-mono text-xl text-brand">{ficha.icono}</span><span className="text-sm font-medium">Brújula</span></div>
-              {turno.estado === "cargando" ? <p role="status" className="flex items-center gap-3 text-base text-(--text-secondary)">{brujula ? <RosaBrujula className="size-8 sm:size-8" /> : <LoaderCircle aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />}{t.buscando}</p> : turno.estado === "error" ? <div className="space-y-4"><p role="alert" className="text-base">{t.noConsulta}</p><Button variant="outline" disabled={chat.cargando} onClick={() => void chat.enviar(turno.pregunta)}>{t.reintentar}</Button></div> : <RespuestaChat turno={turno} chat={chat} destacar={turno.id === ultimaRespuesta} />}
+              {turno.estado === "cargando" ? <EsperaChat idioma={turno.idioma} texto={t.buscando} icono={brujula ? <RosaBrujula className="size-8 sm:size-8" /> : <LoaderCircle aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />} /> : turno.estado === "error" ? <div className="space-y-4"><p role="alert" className="text-base">{t.noConsulta}</p><Button variant="outline" disabled={chat.cargando} onClick={() => void chat.enviar(turno.pregunta)}>{t.reintentar}</Button></div> : <RespuestaChat turno={turno} chat={chat} destacar={turno.id === ultimaRespuesta} />}
             </div>
           </div>
         ); })}
