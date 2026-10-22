@@ -13,6 +13,7 @@ import { ruta } from "@/config/sitio";
 import { PAG, porId, type Resultado } from "@/lib/catalogo";
 import { FueraCatalogo } from "./FueraCatalogo";
 import { Respuesta } from "./Respuesta";
+import { RespuestaPAG } from "./RespuestaPAG";
 
 const MAXIMO = 2000;
 
@@ -27,6 +28,8 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
   const [aviso, setAviso] = useState<string | null>(null);
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const [actual, setActual] = useState<string | null>(null);
+  // Fuera de catálogo: qué ficha del PAG se está viendo.
+  const [actualPag, setActualPag] = useState<string | null>(null);
   // La consulta al modelo puede tardar varios segundos cuando hay mucha gente:
   // pasado 1,5 s enseñamos una barra para que no parezca que se ha colgado.
   const [lento, setLento] = useState(false);
@@ -38,7 +41,7 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
   // así quien navega con teclado o lector de pantalla no se pierde.
   useEffect(() => {
     if (estado === "listo") titulo.current?.focus();
-  }, [estado, actual]);
+  }, [estado, actual, actualPag]);
 
   async function enviar(frase: string) {
     const limpia = frase.trim();
@@ -64,6 +67,7 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
       const datos = (await res.json()) as Resultado;
       setResultado(datos);
       setActual(datos.entradas[0]?.id ?? null);
+      setActualPag(datos.pag?.resultados[0]?.codigoSia ?? null);
       setEstado("listo");
     } catch (e) {
       if ((e as Error).name === "AbortError") return;
@@ -186,9 +190,22 @@ export function Buscador({ ejemplos }: { ejemplos: string[] }) {
             .
           </p>
         )}
-        {estado === "listo" && resultado?.fueraCatalogo && (
-          <FueraCatalogo pag={resultado.pag} tituloRef={titulo} />
-        )}
+        {estado === "listo" &&
+          resultado?.fueraCatalogo &&
+          (resultado.pag && resultado.pag.resultados.length > 0 ? (
+            <RespuestaPAG
+              key={actualPag ?? "pag"}
+              pag={resultado.pag}
+              actual={
+                resultado.pag.resultados.find((r) => r.codigoSia === actualPag) ??
+                resultado.pag.resultados[0]
+              }
+              onElegir={setActualPag}
+              tituloRef={titulo}
+            />
+          ) : (
+            <FueraCatalogo urlBusqueda={resultado.pag?.url} tituloRef={titulo} />
+          ))}
         {estado === "listo" && entrada && (
           <Respuesta
             key={entrada.id}

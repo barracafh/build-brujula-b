@@ -43,15 +43,12 @@ export async function POST(req: Request) {
   // Fuera de catálogo: enseñamos lo que encuentra el buscador oficial con la
   // consulta que propone el modelo (palabras clave, no la frase de la persona).
   // Al PAG solo viaja esa consulta. Si el PAG no responde, queda el enlace genérico.
-  if (resultado.fueraCatalogo && ia?.busqueda) {
-    const resultados = await buscarPAG(ia.busqueda, ia.ambito);
-    if (resultados.length)
-      resultado.pag = {
-        consulta: ia.busqueda,
-        url: urlBusquedaPAG(ia.busqueda),
-        resultados,
-      };
-  }
+  if (resultado.fueraCatalogo && ia?.busqueda)
+    resultado.pag = {
+      consulta: ia.busqueda,
+      url: urlBusquedaPAG(ia.busqueda),
+      resultados: await buscarPAG(ia.busqueda, ia.ambito),
+    };
 
   return Response.json(resultado, {
     headers: { "cache-control": "no-store" },

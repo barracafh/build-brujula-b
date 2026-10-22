@@ -12,7 +12,14 @@ export type ResultadoPAG = {
   titulo: string;
   departamento: string;
   administracion: string;
+  // Ficha del trámite en el PAG.
   url: string;
+  // De la ficha de detalle; null si no se pudo leer.
+  descripcion: string | null;
+  nivelTramitacion: string | null;
+  centroDirectivo: string | null;
+  // «Enlace web» de la ficha: la sede u organismo que gestiona el trámite.
+  enlaceWeb: string | null;
 };
 
 export type AmbitoPAG = "estado" | "autonomico" | "local";
@@ -89,7 +96,11 @@ export function extraerResultados(html: string, max = 3): ResultadoPAG[] {
       titulo: limpiar(titulo),
       departamento: limpiar(departamento ?? ""),
       administracion: limpiar(administracion ?? ""),
-      url: `${PAGINA}/detalle-actuacion?codSia=${codigo}&selectorServicio=buscadorActuaciones`,
+      url: urlFicha(codigo),
+      descripcion: null,
+      nivelTramitacion: null,
+      centroDirectivo: null,
+      enlaceWeb: null,
     });
     if (resultados.length >= max) break;
   }
@@ -99,6 +110,53 @@ export function extraerResultados(html: string, max = 3): ResultadoPAG[] {
 // URL de la búsqueda en el propio PAG, para que la persona siga desde allí.
 export const urlBusquedaPAG = (consulta: string) =>
   `${PAGINA}?${new URLSearchParams({ pag_descripcion: consulta })}`;
+
+export const urlFicha = (codigoSia: string) =>
+  `${PAGINA}/detalle-actuacion?codSia=${codigoSia}&selectorServicio=buscadorActuaciones`;
+
+// La ficha de detalle, convertida a texto con «|» entre elementos para leer
+// cada campo por su etiqueta («Descripción:», «Enlace web:»…).
+const campo = (texto: string, etiqueta: string) => {
+  const m = texto.match(new RegExp(`${etiqueta}:\\s*\\|\\s*([^|]+)`));
+  return m ? limpiar(m[1]) : null;
+};
+
+export async function detallePAG(codigoSia: string) {
+  const res = await pedir(urlFicha(codigoSia));
+  if (!res.ok) throw new Error(`PAG ficha ${res.status}`);
+  const html = await res.text();
+  const main = html.match(/<main[\s\S]*?<\/main>/)?.[0] ?? html;
+  const texto = limpiar(
+    main
+      .replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/g, "")
+      .replace(/<[^>]+>/g, " | ")
+      .replace(/(\s*\|\s*)+/g, " | "),
+  );
+  const enlaceWeb =
+    texto.match(/Enlace web:\s*\|\s*(https?:\/\/\S+)/)?.[1] ??
+    main.match(/href="(https?:\/\/(?!administracion\.gob\.es)[^"]+)"/)?.[1] ??
+    null;
+  return {
+    descripcion: campo(texto, "Descripción"),
+    nivelTramitacion: campo(texto, "Nivel de tramitación electrónica"),
+    centroDirectivo: campo(texto, "Centro directivo"),
+    enlaceWeb,
+  };
+}
+
+// Completa cada resultado con su ficha, en paralelo; si una falla, se queda
+// con los datos de la lista.
+async function enriquecer(resultados: ResultadoPAG[]) {
+  return Promise.all(
+    resultados.map(async (r) => {
+      try {
+        return { ...r, ...(await detallePAG(r.codigoSia)) };
+      } catch {
+        return r;
+      }
+    }),
+  );
+}
 
 export async function buscarPAG(
   consulta: string,
@@ -128,7 +186,7 @@ export async function buscarPAG(
       res = await pedir(url, ajax);
     }
     if (!res.ok) throw new Error(`PAG respondió ${res.status}`);
-    return extraerResultados(await res.text());
+    return await enriquecer(extraerResultados(await res.text()));
   } catch (e) {
     // Solo el motivo, nunca la consulta.
     console.warn(`pag: sin resultados (${(e as Error).message})`);
