@@ -1,3 +1,9 @@
+> **Build night BARRACA x SOTI** · 22 de octubre de 2026, Flywire, València.
+>
+> **Brújula · Asistente de trámites**, de Cuajaos (track Brújula). Encuentra el trámite y el siguiente paso. Publicada en https://build.barraca.house/brujula-b; la IA funciona hasta el 30 de noviembre de 2026.
+>
+> Repo archivado: es el código tal como quedó tras la noche. Si quieres seguir con él, haz un fork. El CLI del evento y su registro ya no existen, así que las instrucciones de `buildnight` que haya más abajo ya no sirven.
+
 # Brújula · Asistente de trámites (squad brujula-b)
 
 **El problema.** La gente cuenta lo que le pasa («me han echado del trabajo», «no puedo pagar la luz») y la Administración responde en organigramas: hay que saber ya que eso es «prestación contributiva por desempleo» del SEPE, o «bono social eléctrico» de una comercializadora de referencia, para encontrar la ficha y la sede. Entre medias se pierden plazos (el paro, 15 días hábiles) y ayudas que encadenan unas con otras.
