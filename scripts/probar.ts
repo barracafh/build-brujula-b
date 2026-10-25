@@ -1,7 +1,7 @@
 // Pasa la hoja de escenarios contra el servidor local y compara el resultado.
 //
-//   bun scripts/probar.ts                        contra http://localhost:3000/brujula-b
-//   BASE=https://build.barraca.house/brujula-b bun scripts/probar.ts
+//   bun scripts/probar.ts                        contra http://localhost:3000/punto-atencion-ciudadana/brujula-b
+//   BASE=https://build.barraca.house/punto-atencion-ciudadana/brujula-b bun scripts/probar.ts
 //
 // Cada fila dice qué ids espera (vacío = fuera de catálogo), qué debe aparecer
 // en «Y después» y, para las de validación, el código HTTP. La columna
@@ -17,7 +17,7 @@ type Escenario = {
   estado?: number;
 };
 
-const BASE = process.env.BASE ?? "http://localhost:3000/brujula-b";
+const BASE = process.env.BASE ?? "http://localhost:3000/punto-atencion-ciudadana/brujula-b";
 const escenarios: Escenario[] = await Bun.file(
   resolve(import.meta.dir, "escenarios.json"),
 ).json();
